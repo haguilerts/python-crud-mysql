@@ -1,29 +1,4 @@
-"""
-import mysql.connector
-from mysql.connector import Error
 
-def conectar():
-    try:
-        conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="",  # como no tiene contraseña
-            database="ispc",
-            use_pure=True
-        )
-
-        if conn.is_connected():
-            print("✅ Conexión a la base de datos exitosa")
-            return conn
-        else:
-            print("⚠ No se pudo conectar a la base de datos")
-            return None
-
-    except Error as e:
-        print("❌ Error al conectar a la base de datos:", e)
-        return None
-
-"""
 
 import mysql.connector
 from mysql.connector import Error
