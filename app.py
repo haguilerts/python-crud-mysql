@@ -16,16 +16,16 @@ def refrescar_tabla():
     ajustar_columnas()
 
 def abrir_formulario(contacto=None):
-    # Crear ventana secundaria
     form = tk.Toplevel(root)
     form.title("Agregar Contacto" if contacto is None else "Modificar Contacto")
     form.geometry("500x400")
-    form.grab_set()  # Bloquea la ventana principal
+    form.grab_set()
+
     tk.Label(form, text="LISTA DE USUARIOS", font=("Arial", 18, "bold")).pack(pady=10)
 
     entries = {}
     labels = [("Nombre", "nombre"), ("Apellido", "apellido"), ("Teléfono", "telefono"), ("Email", "email")]
-    for i, (text, key) in enumerate(labels):
+    for text, key in labels:
         tk.Label(form, text=text, font=("Arial", 12, "bold")).pack(anchor="w", padx=20)
         e = tk.Entry(form, width=40)
         e.pack(padx=20, pady=5)
@@ -37,10 +37,8 @@ def abrir_formulario(contacto=None):
         entries["telefono"].insert(0, contacto[3])
         entries["email"].insert(0, contacto[4])
 
-    mensaje = tk.Label(form, text="", fg="red", font=("Arial", 10))
-    mensaje.pack(pady=5)
-
     def guardar_cambios():
+        # Resetear colores antes de validar
         for key in entries:
             entries[key].config(bg="white")
 
@@ -53,7 +51,7 @@ def abrir_formulario(contacto=None):
         success, errores = c.guardar() if contacto is None else c.actualizar()
 
         if errores:
-            mensaje.config(text="; ".join(errores))
+            # Pintar de rosado los campos con error
             for err in errores:
                 if "Nombre" in err:
                     entries["nombre"].config(bg="#ffcccc")
@@ -63,6 +61,9 @@ def abrir_formulario(contacto=None):
                     entries["telefono"].config(bg="#ffcccc")
                 if "Email" in err:
                     entries["email"].config(bg="#ffcccc")
+
+            # Mostrar cartel emergente con errores
+            messagebox.showerror("Error", "\n".join(errores))
         else:
             refrescar_tabla()
             form.destroy()
@@ -73,7 +74,7 @@ def abrir_formulario(contacto=None):
     tk.Button(btn_frame, text="Guardar", width=12, bg="#4CAF50", fg="white", command=guardar_cambios).grid(row=0, column=0, padx=10)
     tk.Button(btn_frame, text="Cancelar", width=12, bg="#f44336", fg="white", command=form.destroy).grid(row=0, column=1, padx=10)
 
-def seleccionar_contacto(event):
+def seleccionar_contacto(event=None):
     selected = tabla.selection()
     if selected:
         item = tabla.item(selected[0])
@@ -85,7 +86,7 @@ def eliminar_contacto():
         messagebox.showwarning("Aviso", "Seleccione un contacto para eliminar")
         return
     item = tabla.item(selected[0])
-    c = Contacto(*item[1:], id=item["values"][0])
+    c = Contacto(*item["values"][1:], id=item["values"][0])
     success, errores = c.eliminar()
     if errores:
         messagebox.showerror("Error", "; ".join(errores))
@@ -106,7 +107,7 @@ tk.Label(root, text="SISTEMA DE CONTACTOS", font=("Arial", 20, "bold")).pack(pad
 frame_buttons = tk.Frame(root)
 frame_buttons.pack(pady=10)
 tk.Button(frame_buttons, text="Agregar", width=12, bg="#2196F3", fg="white", command=lambda: abrir_formulario()).grid(row=0, column=0, padx=5)
-tk.Button(frame_buttons, text="Modificar", width=12, bg="#FFC107", fg="white", command=lambda: seleccionar_contacto(None)).grid(row=0, column=1, padx=5)
+tk.Button(frame_buttons, text="Modificar", width=12, bg="#FFC107", fg="white", command=lambda: seleccionar_contacto()).grid(row=0, column=1, padx=5)
 tk.Button(frame_buttons, text="Eliminar", width=12, bg="#f44336", fg="white", command=eliminar_contacto).grid(row=0, column=2, padx=5)
 tk.Button(frame_buttons, text="Mostrar", width=12, bg="#4CAF50", fg="white", command=refrescar_tabla).grid(row=0, column=3, padx=5)
 
@@ -122,7 +123,7 @@ tabla.heading("telefono", text="Teléfono")
 tabla.heading("email", text="Email")
 tabla.pack(fill="both", expand=True)
 
-# Ajustar columnas según contenido
+# Ajustar columnas
 def ajustar_columnas():
     tabla.update_idletasks()
     for col in tabla["columns"]:
@@ -136,5 +137,5 @@ tabla.bind("<Double-1>", seleccionar_contacto)
 # Inicializar tabla
 refrescar_tabla()
 
-# Iniciar la app
+# Iniciar app
 root.mainloop()

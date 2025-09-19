@@ -10,31 +10,24 @@ class Contacto:
         self.telefono = telefono
         self.email = email
 
-    # -------------------
-    # Método: Validar campos
-    # -------------------
     def es_valido(self):
         errores = []
 
-        if not self.nombre.isalpha():
+        if not self.nombre or not self.nombre.isalpha():
             errores.append("Nombre: solo letras")
-        if not self.apellido.isalpha():
+        if not self.apellido or not self.apellido.isalpha():
             errores.append("Apellido: solo letras")
         if not self.telefono.isdigit():
             errores.append("Teléfono: solo números")
-        if not re.match(r"^[\w\d]+@[\w\d]+\.\w{2,3}$", self.email):
+        if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w{2,}$", self.email):
             errores.append("Email: formato inválido")
 
         return errores
 
-    # -------------------
-    # Método: Guardar contacto
-    # -------------------
     def guardar(self):
         errores = self.es_valido()
         if errores:
             return False, errores
-
         try:
             conn = conectar()
             cursor = conn.cursor()
@@ -43,14 +36,10 @@ class Contacto:
             cursor.execute(sql, valores)
             conn.commit()
             conn.close()
-            print("Contacto guardado con éxito")
             return True, None
         except Error as e:
             return False, [f"Error BD: {e}"]
 
-    # -------------------
-    # Método: Modificar contacto
-    # -------------------
     def actualizar(self):
         if self.id is None:
             return False, ["ID del contacto es necesario para actualizar"]
@@ -58,7 +47,6 @@ class Contacto:
         errores = self.es_valido()
         if errores:
             return False, errores
-
         try:
             conn = conectar()
             cursor = conn.cursor()
@@ -67,18 +55,13 @@ class Contacto:
             cursor.execute(sql, valores)
             conn.commit()
             conn.close()
-            print("Contacto actualizado con éxito")
             return True, None
         except Error as e:
             return False, [f"Error BD: {e}"]
 
-    # -------------------
-    # Método: Eliminar contacto
-    # -------------------
     def eliminar(self):
         if self.id is None:
             return False, ["ID del contacto es necesario para eliminar"]
-
         try:
             conn = conectar()
             cursor = conn.cursor()
@@ -87,14 +70,10 @@ class Contacto:
             cursor.execute(sql, valores)
             conn.commit()
             conn.close()
-            print("Contacto eliminado con éxito")
             return True, None
         except Error as e:
             return False, [f"Error BD: {e}"]
 
-    # -------------------
-    # Método: Listar contactos
-    # -------------------
     @staticmethod
     def listar():
         try:
